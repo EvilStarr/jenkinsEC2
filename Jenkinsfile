@@ -2,94 +2,60 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = 'us-east-1'
+        AWS_DEFAULT_REGION = 'us-east-1'
+        TF_IN_AUTOMATION   = 'true'
     }
 
     stages {
-        stage('Set AWS Credentials') {
+        stage('Checkout') {
             steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'jenkinsec2'
-                ]]) {
-                    sh '''
-                    export AWS_DEFAULT_REGION=$AWS_REGION
-                    aws sts get-caller-identity
-                    '''
-                }
-            }
-        }
-
-        stage('Terraform Format Check') {
-            steps {
-                 {
-                    sh '''
-                    terraform fmt -check
-                    '''
-                }
+                checkout scm
             }
         }
 
         stage('Terraform Init') {
             steps {
-                 {
-                    withCredentials([[
-                        $class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: 'jenkinsec2'
-                    ]]) {
-                        sh '''
-                        export AWS_DEFAULT_REGION=$AWS_REGION
-                        terraform init
-                        '''
-                    }
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'jenkinsec2' // need populate based on name in Jenkins for AWS Credentials
+                ]]) {
+                    sh 'terraform init'
                 }
             }
         }
 
         stage('Terraform Validate') {
             steps {
-                 {
-                    sh '''
-                    terraform validate
-                    '''
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'jenkinsec2'
+                ]]) {
+                    sh 'terraform validate'
                 }
             }
         }
 
-        stage('Terraform Plan') {
+        stage('Terraform Format') {
             steps {
-                 {
-                    withCredentials([[
-                        $class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: 'jenkinsec2'
-                    ]]) {
-                        sh '''
-                        export AWS_DEFAULT_REGION=$AWS_REGION
-                        terraform plan -out=tfplan
-                        '''
-                    }
-                }
+                sh 'terraform fmt -check'
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                input message: 'Approve Terraform Apply?', ok: 'Deploy'
-                 {
-                    withCredentials([[
-                        $class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: 'jenkinsec2'
-                    ]]) {
-                        sh '''
-                        export AWS_DEFAULT_REGION=$AWS_REGION
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'jenkinsec2' // need populate based on name in Jenkins for AWS Credentials
+                ]]) {
+                    sh '''
+                        terraform plan -out=tfplan
                         terraform apply -auto-approve tfplan
-                        '''
-                    }
+                    '''
                 }
             }
         }
 
-        stage('Terraform Destroy (Optional)') {
+        stage('Optional Destroy') {
             steps {
                 script {
                     def destroyChoice = input(
@@ -105,31 +71,17 @@ pipeline {
                     )
 
                     if (destroyChoice == 'yes') {
-                         {
-                            withCredentials([[
-                                $class: 'AmazonWebServicesCredentialsBinding',
-                                credentialsId: 'jenkinsec2'
-                            ]]) {
-                                sh '''
-                                export AWS_DEFAULT_REGION=$AWS_REGION
-                                terraform destroy -auto-approve
-                                '''
-                            }
+                        withCredentials([[
+                            $class: 'AmazonWebServicesCredentialsBinding',
+                            credentialsId: 'jenkinsec2' // need populate based on name in Jenkins for AWS Credentials
+                        ]]) {
+                            sh 'terraform destroy -auto-approve'
                         }
                     } else {
                         echo "Skipping destroy"
                     }
                 }
             }
-        }
-    }
-
-    post {
-        success {
-            echo 'Terraform pipeline completed successfully!'
-        }
-        failure {
-            echo 'Terraform pipeline failed!'
         }
     }
 }
