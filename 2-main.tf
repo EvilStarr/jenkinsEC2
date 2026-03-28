@@ -38,6 +38,13 @@ resource "aws_s3_object" "jenkins3" {
   source = "${path.module}/jenkins_server_proof/jenkins3.png"
 }
 
+resource "aws_s3_object" "empty" {
+  bucket = aws_s3_bucket.frontend.id
+  key    = "jenkins_server_proof/emptywebhook.png"
+  source = "${path.module}/jenkins_server_proof/emptywebhook.png"
+}
+
+
 resource "aws_s3_object" "jenkins4" {
   bucket = aws_s3_bucket.frontend.id
   key    = "jenkins_server_proof/jenkins4.png"
