@@ -56,6 +56,24 @@ resource "aws_s3_object" "webhook" {
   source = "${path.module}/jenkins_server_proof/webhook.png"
 }
 
+resource "aws_s3_object" "jenkinsapply" {
+  bucket = aws_s3_bucket.frontend.id
+  key    = "jenkins_server_proof/jenkinsapply.png"
+  source = "${path.module}/jenkins_server_proof/jenkinsapply.png"
+}
+
+resource "aws_s3_object" "jenkinswebhookk" {
+  bucket = aws_s3_bucket.frontend.id
+  key    = "jenkins_server_proof/jenkinswebhook2.png"
+  source = "${path.module}/jenkins_server_proof/jenkinswebhook2.png"
+}
+
+resource "aws_s3_object" "jenkinsz" {
+  bucket = aws_s3_bucket.frontend.id
+  key    = "jenkins_server_proof/jenkinss32.png"
+  source = "${path.module}/jenkins_server_proof/jenkinss32.png"
+}
+
 resource "aws_s3_bucket_public_access_block" "jdollasname" {
   bucket = aws_s3_bucket.frontend.id
 
