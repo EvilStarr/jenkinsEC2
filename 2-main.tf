@@ -44,6 +44,24 @@ resource "aws_s3_object" "jenkins4" {
   source = "${path.module}/jenkins_server_proof/jenkins4.png"
 }
 
+resource "aws_s3_object" "jenkins5" {
+  bucket = aws_s3_bucket.frontend.id
+  key    = "jenkins_server_proof/armageddon-proof.png"
+  source = "${path.module}/jenkins_server_proof/armageddon-proof.png"
+}
+
+resource "aws_s3_object" "jenkins6" {
+  bucket = aws_s3_bucket.frontend.id
+  key    = "jenkins_server_proof/bucketpolicy.png"
+  source = "${path.module}/jenkins_server_proof/bucketpolicy.png"
+}
+
+resource "aws_s3_object" "jenkins7" {
+  bucket = aws_s3_bucket.frontend.id
+  key    = "jenkins_server_proof/bucketproof.png"
+  source = "${path.module}/jenkins_server_proof/bucketproof.png"
+}
+
 resource "aws_s3_object" "s3proof" {
   bucket = aws_s3_bucket.frontend.id
   key    = "jenkins_server_proof/s3proof.png"
