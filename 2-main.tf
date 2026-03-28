@@ -81,5 +81,5 @@ resource "aws_s3_bucket_policy" "goku" {
     ]
   })
 
-  depends_on = [aws_s3_bucket_public_access_block.pab_name]
+  depends_on = [aws_s3_bucket_public_access_block.jdollasname]
 }
